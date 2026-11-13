@@ -7,6 +7,8 @@ import { AppError } from "../../../shared/errors/AppError.js";
 import { HTTP_STATUS } from "../../../shared/constants/httpStatus.js";
 import RefreshSession from "../../auth/models/RefreshSession.js";
 
+import { validateActiveBranchIds } from "../../branches/services/branchAssignment.service.js";
+
 const STAFF_ROLES = [ROLES.ADMIN, ROLES.CASHIER];
 
 const STAFF_SELECT =
@@ -38,13 +40,17 @@ class StaffService {
       }
     }
 
+    const validatedBranchIds = await validateActiveBranchIds(
+      data.branchIds || [],
+    );
+
     const staff = await User.create({
       fullName: data.fullName,
       email: data.email,
       phone: data.phone || undefined,
       password: data.password,
       role: data.role,
-      branchIds: data.branchIds || [],
+      branchIds: validatedBranchIds,
       status: ACCOUNT_STATUS.ACTIVE,
       createdBy,
     });
@@ -150,11 +156,21 @@ class StaffService {
       }
     }
 
+    let validatedBranchIds;
+
+    if (data.branchIds !== undefined) {
+      validatedBranchIds = await validateActiveBranchIds(data.branchIds);
+    }
+
     if (data.fullName !== undefined) staff.fullName = data.fullName;
     if (data.email !== undefined) staff.email = data.email;
     if (data.phone !== undefined) staff.phone = data.phone || undefined;
     if (data.role !== undefined) staff.role = data.role;
     if (data.branchIds !== undefined) staff.branchIds = data.branchIds;
+
+    if (validatedBranchIds !== undefined) {
+      staff.branchIds = validatedBranchIds;
+    }
 
     await staff.save();
 

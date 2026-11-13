@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+
 import User from "../modules/users/models/User.js";
 import { verifyAccessToken } from "../modules/auth/services/tokenService.js";
 
@@ -12,12 +14,12 @@ export async function protect(req, res, next) {
       });
     }
 
-    const accessToken = authorization.split(" ")[1];
+    const accessToken = authorization.slice(7).trim();
 
-    if (!accessToken) {
+    if (!accessToken || accessToken.includes(" ")) {
       return res.status(401).json({
         success: false,
-        message: "Access token is missing",
+        message: "Invalid access token format.",
       });
     }
 
@@ -28,7 +30,19 @@ export async function protect(req, res, next) {
     } catch {
       return res.status(401).json({
         success: false,
-        message: "Invalid or expired access token",
+        message: "Invalid or expired access token.",
+      });
+    }
+
+    if (
+      !payload ||
+      payload.type !== "access" ||
+      typeof payload.sub !== "string" ||
+      !mongoose.isValidObjectId(payload.sub)
+    ) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid access token payload.",
       });
     }
 
@@ -39,18 +53,18 @@ export async function protect(req, res, next) {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "User account not found",
+        message: "User account not found.",
       });
     }
 
     if (user.status !== "active") {
-      return res.status(403).json({
+      return res.status(401).json({
         success: false,
-        message: "Your account is not active",
+        message:
+          "Your account is inactive or suspended. Please contact the Owner.",
       });
     }
 
-    // Authenticated user available to subsequent middleware/controllers.
     req.user = user;
 
     next();
