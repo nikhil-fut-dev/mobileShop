@@ -2,10 +2,14 @@ import { ROLES } from "./roles.js";
 import { PERMISSIONS as P } from "./permissions.js";
 
 export const ROLE_PERMISSIONS = Object.freeze({
+  // Owner has complete access.
   [ROLES.OWNER]: Object.freeze(["*"]),
 
+  // Admin handles daily shop operations.
   [ROLES.ADMIN]: Object.freeze([
     P.DASHBOARD_VIEW,
+
+    P.USERS_READ,
 
     P.PRODUCTS_READ,
     P.PRODUCTS_CREATE,
@@ -14,11 +18,13 @@ export const ROLE_PERMISSIONS = Object.freeze({
 
     P.INVENTORY_READ,
     P.INVENTORY_MANAGE,
+
     P.IMEI_READ,
     P.IMEI_MANAGE,
 
     P.SUPPLIERS_READ,
     P.SUPPLIERS_MANAGE,
+
     P.PURCHASES_READ,
     P.PURCHASES_MANAGE,
 
@@ -36,12 +42,14 @@ export const ROLE_PERMISSIONS = Object.freeze({
 
     P.RETURNS_READ,
     P.RETURNS_MANAGE,
+
     P.REFUNDS_READ,
     P.REFUNDS_MANAGE,
 
     P.SETTINGS_READ,
   ]),
 
+  // Cashier has restricted billing access.
   [ROLES.CASHIER]: Object.freeze([
     P.POS_ACCESS,
 
