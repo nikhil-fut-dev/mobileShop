@@ -4,6 +4,7 @@ import helmet from "helmet";
 import hpp from "hpp";
 import rateLimit from "express-rate-limit";
 import pinoHttp from "pino-http";
+import cookieParser from "cookie-parser";
 
 import { env } from "./config/env.js";
 import { logger } from "./config/logger.js";
@@ -30,6 +31,8 @@ app.use(
     credentials: true,
   }),
 );
+
+app.use(cookieParser());
 
 // HTTP request logging
 app.use(pinoHttp({ logger }));
